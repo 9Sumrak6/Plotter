@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>plotter</title>
+	<style>
+		canvas {
+			border: 1px solid #000
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<script>
+		const HEIGHT = 920
+		const WIDTH = 1900
+
+		const CELL_SIZE_X = 90
+		const CELL_SIZE_Y = 180
+
+		const CELLS_X = WIDTH / (2 * CELL_SIZE_X)
+		const CELLS_Y = HEIGHT / (2 * CELL_SIZE_Y)
+
+		const X0 = WIDTH / 2
+		const Y0 = HEIGHT / 2
+
+		const GRID_COLOR = "#ccc"
+		const AXIS_COLOR = "#000" 
+		
+
+		let canvas = document.getElementById("canvas")
+		
+		canvas.width = WIDTH
+		canvas.height = HEIGHT
+		
+		let ctx = canvas.getContext("2d")
+		
+		function DrawLine(ctx, x1, y1, x2, y2) {
+			ctx.beginPath()
+			ctx.moveTo(x1, y1)
+			ctx.lineTo(x2, y2)
+			ctx.stroke()
+		}
+
+		function DrawGrid(ctx) {
+			ctx.strokeStyle = GRID_COLOR
+
+			for (let i = 1; i <= CELLS_Y; i++) {
+				DrawLine(ctx, 0, Y0 - i * CELL_SIZE_Y, WIDTH, Y0 - i * CELL_SIZE_Y)
+				DrawLine(ctx, 0, Y0 + i * CELL_SIZE_Y, WIDTH, Y0 + i * CELL_SIZE_Y)
+			}
+			for (let i = 1; i <= CELLS_X; i++) {
+				DrawLine(ctx, X0 - i * CELL_SIZE_X, 0, X0 - i * CELL_SIZE_X, HEIGHT)
+				DrawLine(ctx, X0 + i * CELL_SIZE_X, 0, X0 + i * CELL_SIZE_X, HEIGHT)
+			}
+		}
+
+		function DrawAxis(ctx) {
+			ctx.strokeStyle = AXIS_COLOR
+			ctx.fillStyle = AXIS_COLOR
+			ctx.font = "14px Calibri"
+
+			DrawLine(ctx, X0, 0, X0, HEIGHT)
+			DrawLine(ctx, 0, Y0, WIDTH, Y0)
+
+			ctx.textBaseline = "top"
+			ctx.textAlign = "center"
+			
+			for (let i = 1; i < CELLS_X; i++){
+				DrawLine(ctx, X0 - i * CELL_SIZE_X, Y0 - 4, X0 - i * CELL_SIZE_X, Y0 + 4)
+				DrawLine(ctx, X0 + i * CELL_SIZE_X, Y0 - 4, X0 + i * CELL_SIZE_X, Y0 + 4)
+
+				ctx.fillText(i, X0 + i * CELL_SIZE_X, Y0 + 7)
+				ctx.fillText(-i, X0 - i * CELL_SIZE_X, Y0 + 7)
+			}
+
+			ctx.textBaseline = "middle"
+			ctx.textAlign = "right"
+			
+			for (let i = 1; i < CELLS_Y; i++){
+				DrawLine(ctx, X0 - 4, Y0 - i * CELL_SIZE_Y, X0 + 4, Y0 - i * CELL_SIZE_Y)
+				DrawLine(ctx, X0 - 4, Y0 + i * CELL_SIZE_Y, X0 + 4, Y0 + i * CELL_SIZE_Y)
+
+				ctx.fillText(i, X0 - 7, Y0 - i * CELL_SIZE_Y)
+				ctx.fillText(-i, X0 - 7, Y0 + i * CELL_SIZE_Y)
+			}
+		}
+
+		function Map(x, xmin, xmax, ymin, ymax) {
+			return (x - xmin) / (xmax - xmin) * (ymax - ymin) + ymin
+		}
+
+		function XtoW(x) {
+			return Map(x, -CELLS_X, CELLS_X, 0, WIDTH)
+		}
+
+		function YtoH(y) {
+			return Map(y, CELLS_Y, -CELLS_Y, 0, HEIGHT)
+		}
+
+		function PlotFunction(ctx, f, step, color) {
+			let xmin = -CELLS_X
+			let xmax = CELLS_X
+
+			ctx.strokeStyle = color
+			ctx.lineWidth = 2
+			ctx.beginPath()
+			ctx.moveTo(XtoW(xmin), YtoH(f(xmin)))
+
+			for (let x = xmin; x <= xmax; x += step)
+				ctx.lineTo(XtoW(x), YtoH(f(x)))
+
+			ctx.stroke()
+		}
+
+		function f1(x) {
+			return (Math.cos(x) * Math.cos(x) + 5) / 3
+		}
+
+		function f2(x) {
+			return Math.sin(x)
+		}
+
+		DrawGrid(ctx)
+		DrawAxis(ctx)
+		PlotFunction(ctx, f1, 0.01, "red")
+		PlotFunction(ctx, f2, 0.01, "blue")
+		/*console.log(1 + 2)
+		let - завести локальную переменную(let a = 5)
+		let a = Math.sqrt(2)
+		console.log(a)
+		function Add(x, y) {
+			return x + y
+		}
+		let f = Add
+		for (let i = 0; i < 10; i++)
+			console.log(f(i, i))*/
+	</script>
+</body>
+</html>
