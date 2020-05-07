@@ -12,37 +12,36 @@
 	<canvas id="canvas"></canvas>
 	<script src="plot.js"></script>
 	<script >
-	const HEIGHT = 920
-	const WIDTH = 1900
+		const HEIGHT = 920
+		const WIDTH = 1900
 
-	const CELL_SIZE_X = 90
-	const CELL_SIZE_Y = 180
+		const CELL_SIZE_X = 90
+		const CELL_SIZE_Y = 180
 
-	const CELLS_X = WIDTH / (2 * CELL_SIZE_X)
-	const CELLS_Y = HEIGHT / (2 * CELL_SIZE_Y)
+		const CELLS_X = WIDTH / (2 * CELL_SIZE_X)
+		const CELLS_Y = HEIGHT / (2 * CELL_SIZE_Y)
 
-	const GRID_COLOR = "#ccc"
-	const AXIS_COLOR = "#000" 
+		const GRID_COLOR = "#ccc"
+		const AXIS_COLOR = "#000" 
 
-	function f1 (x) {
-		return (Math.cos(x) * Math.cos(x) + 5) / 3
-	}
+		function f1 (x) {
+			return (Math.cos(x) * Math.cos(x) + 5) / 3
+		}
 
-	function f2 (x) {
-		return 4 * x * x
-	}
+		function f2 (x) {
+			return 4 * x * x
+		}
 
-	let canvas = document.getElementById("canvas")
+		let canvas = document.getElementById("canvas")
 
-	canvas.width = WIDTH
-	canvas.height = HEIGHT
+		canvas.width = WIDTH
+		canvas.height = HEIGHT
 
-	let plotter = new Plotter(CELL_SIZE_X, CELL_SIZE_Y, CELLS_X, CELLS_Y, GRID_COLOR, AXIS_COLOR, canvas)
+		let plotter = new Plotter(canvas, CELL_SIZE_X, CELL_SIZE_Y, CELLS_X, CELLS_Y, GRID_COLOR, AXIS_COLOR)
 
-	plotter.DrawGrid()
-	plotter.DrawAxis()
-	plotter.PlotFunction(f1, 0.01, "red")
-	plotter.PlotFunction(f2, 0.01, "blue")
+		plotter.AddFunction(f1, "blue")
+		plotter.AddFunction(f2, "red")
+		plotter.Plot()
 	</script>
 </body>
 </html>

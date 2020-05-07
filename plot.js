@@ -1,4 +1,4 @@
-function Plotter(cell_size_x, cell_size_y, cells_x, cells_y, grid_color, axis_color, canvas) {
+function Plotter(canvas, cell_size_x, cell_size_y, cells_x, cells_y, grid_color, axis_color) {
 	this.width = canvas.width
 	this.height = canvas.height
 
@@ -15,6 +15,8 @@ function Plotter(cell_size_x, cell_size_y, cells_x, cells_y, grid_color, axis_co
 	this.axis_color = axis_color
 
 	this.ctx = canvas.getContext("2d")
+
+	this.functions = []
 }
 
 Plotter.prototype.DrawLine = function(x1, y1, x2, y2) {
@@ -76,6 +78,10 @@ Plotter.prototype.DrawAxis = function() {
 	this.DrawHorizontalValues()
 }
 
+Plotter.prototype.AddFunction = function(f, color) {
+	this.functions.push({f: f, color: color})
+}
+
 Plotter.prototype.Map = function(x, xmin, xmax, ymin, ymax) {
 	return (x - xmin) / (xmax - xmin) * (ymax - ymin) + ymin
 }
@@ -101,4 +107,14 @@ Plotter.prototype.PlotFunction = function(f, step, color) {
 		this.ctx.lineTo(this.XtoW(x), this.YtoH(f(x)))
 
 	this.ctx.stroke()
+}
+
+Plotter.prototype.Plot = function() {
+	this.ctx.clearRect(0, 0, this.width, this.height)
+
+	this.DrawGrid()
+	this.DrawAxis()
+
+	for (let i = 0; i < this.functions.length; i++)
+		this.PlotFunction(this.functions[i].f, 0.001, this.functions[i].color)	
 }
