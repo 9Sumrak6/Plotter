@@ -12,8 +12,20 @@
 	<canvas id="canvas"></canvas>
 	<script src="plot.js"></script>
 	<script >
-		function f1 (x) {
-	return (Math.cos(x) * Math.cos(x) + 5) / 3
+	const HEIGHT = 920
+	const WIDTH = 1900
+
+	const CELL_SIZE_X = 90
+	const CELL_SIZE_Y = 180
+
+	const CELLS_X = WIDTH / (2 * CELL_SIZE_X)
+	const CELLS_Y = HEIGHT / (2 * CELL_SIZE_Y)
+
+	const GRID_COLOR = "#ccc"
+	const AXIS_COLOR = "#000" 
+
+	function f1 (x) {
+		return (Math.cos(x) * Math.cos(x) + 5) / 3
 	}
 
 	function f2 (x) {
@@ -21,34 +33,16 @@
 	}
 
 	let canvas = document.getElementById("canvas")
-	canvas.width = 1920
-	canvas.height = 920
 
-	let plotter = new Plotter(1900, 920, 90, 180, (1920 / 180), (920 / 360), "#ccc", "#000", canvas)
+	canvas.width = WIDTH
+	canvas.height = HEIGHT
+
+	let plotter = new Plotter(CELL_SIZE_X, CELL_SIZE_Y, CELLS_X, CELLS_Y, GRID_COLOR, AXIS_COLOR, canvas)
 
 	plotter.DrawGrid()
 	plotter.DrawAxis()
 	plotter.PlotFunction(f1, 0.01, "red")
 	plotter.PlotFunction(f2, 0.01, "blue")
-	</script>
-	<script>
-		function House(floors, price) {
-			this.floors = floors
-			this.price = price
-		}
-
-		House.prototype.Print = function() {
-			console.log("floors:", this.floors, " price: ", this.price)
-		}
-
-		House.prototype.GetP = function(n) {
-			return this.price * n
-		}
-
-		let house = new House(2, 3)
-		house.Print()
-
-		console.log(house.GetP(2))
 	</script>
 </body>
 </html>

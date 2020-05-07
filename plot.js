@@ -1,6 +1,6 @@
-function Plotter(width, height, cell_size_x, cell_size_y, cells_x, cells_y, grid_color, axis_color, canvas) {
-	this.width = width
-	this.height = height
+function Plotter(cell_size_x, cell_size_y, cells_x, cells_y, grid_color, axis_color, canvas) {
+	this.width = canvas.width
+	this.height = canvas.height
 
 	this.cell_size_x = cell_size_x
 	this.cell_size_y = cell_size_y
