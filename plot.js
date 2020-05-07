@@ -1,4 +1,4 @@
-function Plotter(width, height, cell_size_x, cell_size_y, cells_x, cells_y, x0, y0, grid_color, axis_color, ctx) {
+function Plotter(width, height, cell_size_x, cell_size_y, cells_x, cells_y, grid_color, axis_color, canvas) {
 	this.width = width
 	this.height = height
 
@@ -8,13 +8,13 @@ function Plotter(width, height, cell_size_x, cell_size_y, cells_x, cells_y, x0, 
 	this.cells_x = cells_x 
 	this.cells_y = cells_y
 
-	this.x0 = x0
-	this.y0 = y0
+	this.x0 = this.width / 2
+	this.y0 = this.height / 2
 
 	this.grid_color = grid_color
 	this.axis_color = axis_color
 
-	this.ctx = ctx
+	this.ctx = canvas.getContext("2d")
 }
 
 Plotter.prototype.DrawLine = function(x1, y1, x2, y2) {
@@ -102,24 +102,3 @@ Plotter.prototype.PlotFunction = function(f, step, color) {
 
 	this.ctx.stroke()
 }
-
-function f1 (x) {
-	return (Math.cos(x) * Math.cos(x) + 5) / 3
-}
-
-function f2 (x) {
-	return 4 * x * x
-}
-
-let canvas = document.getElementById("canvas")
-canvas.width = 1920
-canvas.height = 920
-
-let ctx = canvas.getContext("2d")
-
-let plotter = new Plotter(1900, 920, 90, 180, (1920 / 180), (920 / 360), 950, 460, "#ccc", "#000", ctx)
-
-plotter.DrawGrid()
-plotter.DrawAxis()
-plotter.PlotFunction(f1, 0.01, "red")
-plotter.PlotFunction(f2, 0.01, "blue")
