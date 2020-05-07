@@ -28,13 +28,13 @@ Plotter.prototype.DrawGrid = function() {
 	this.ctx.strokeStyle = this.grid_color
 
 	for (let i = 1; i <= this.cells_y; i++) {
-		this.DrawLine(this.ctx, 0, this.y0 - i * this.cell_size_y, this.width, this.y0 - i * this.cell_size_y)
-		this.DrawLine(this.ctx, 0, this.y0 + i * this.cell_size_y, this.width, this.y0 + i * this.cell_size_y)
+		this.DrawLine(0, this.y0 - i * this.cell_size_y, this.width, this.y0 - i * this.cell_size_y)
+		this.DrawLine(0, this.y0 + i * this.cell_size_y, this.width, this.y0 + i * this.cell_size_y)
 	}
 
 	for (let i = 1; i <= this.cells_x; i++) {
-		this.DrawLine(this.ctx, this.x0 - i * this.cell_size_x, 0, this.x0 - i * this.cell_size_x, this.height)
-		this.DrawLine(this.ctx, this.x0 + i * this.cell_size_x, 0, this.x0 + i * this.cell_size_x, this.height)
+		this.DrawLine(this.x0 - i * this.cell_size_x, 0, this.x0 - i * this.cell_size_x, this.height)
+		this.DrawLine(this.x0 + i * this.cell_size_x, 0, this.x0 + i * this.cell_size_x, this.height)
 	}
 }
 
