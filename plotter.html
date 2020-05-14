@@ -10,22 +10,21 @@
 </head>
 <body>
 	<canvas id="canvas"></canvas>
-	<script src="plot.js"></script>
+	<script src="plotter.js"></script>
 	<script >
 		const HEIGHT = 900
 		const WIDTH = 1900
 
 		const CELL_SIZE_X = 90
 		const CELL_SIZE_Y = 90
-
-		const CELLS_X = WIDTH / (2 * CELL_SIZE_X)
-		const CELLS_Y = HEIGHT / (2 * CELL_SIZE_Y)
 		
-		const X0 = 2
-		const Y0 = 1
+		const X0 = 0
+		const Y0 = 0
 		
 		const GRID_COLOR = "#ccc"
 		const AXIS_COLOR = "#000" 
+
+		const SCALE = 1
 
 		function f1 (x) {
 			return (Math.cos(x) * Math.cos(x) + 5) / 3
@@ -40,7 +39,7 @@
 		canvas.width = WIDTH
 		canvas.height = HEIGHT
 	
-		let plotter = new Plotter(canvas, CELL_SIZE_X, CELL_SIZE_Y, CELLS_X, CELLS_Y, X0, Y0, GRID_COLOR, AXIS_COLOR)
+		let plotter = new Plotter(canvas, CELL_SIZE_X, CELL_SIZE_Y, X0, Y0, GRID_COLOR, AXIS_COLOR, SCALE)
 
 		plotter.AddFunction(f1, "blue")
 		plotter.AddFunction(f2, "red")

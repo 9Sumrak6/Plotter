@@ -1,19 +1,21 @@
-function Plotter(canvas, cell_size_x, cell_size_y, cells_x, cells_y, x0, y0, grid_color, axis_color) {
+function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_color, scale) {
+	this.ctx = canvas.getContext("2d")
+
 	this.width = canvas.width
 	this.height = canvas.height
 
 	this.cell_size_x = cell_size_x
 	this.cell_size_y = cell_size_y
 
-	this.cells_x = cells_x 
-	this.cells_y = cells_y
+	this.cells_x = this.width / (2 * this.cell_size_x) 
+	this.cells_y = this.height / (2 * this.cell_size_y)
 
 	this.SetCenter(x0, y0)
 
 	this.grid_color = grid_color
 	this.axis_color = axis_color
 
-	this.ctx = canvas.getContext("2d")
+	this.scale = scale
 
 	this.functions = []
 }
@@ -38,48 +40,39 @@ Plotter.prototype.DrawLine = function(x1, y1, x2, y2) {
 
 Plotter.prototype.DrawGrid = function() {
 	this.ctx.strokeStyle = this.grid_color
+	this.ctx.lineWidth = 1
 
 	let top = Math.floor(this.y0 / this.cell_size_y)
 	let bottom = Math.floor((this.height - this.y0) / this.cell_size_y)
 	let right = Math.floor((this.width - this.x0) / this.cell_size_x) 
 	let left = Math.floor(this.x0 / this.cell_size_x)
 
-	for (let i = 1; i <= top; i++)
+	for (let i = -bottom; i <= top; i++)
 		this.DrawLine(0, this.y0 - i * this.cell_size_y, this.width, this.y0 - i * this.cell_size_y)
 
-	for (let i = 1; i <= bottom; i++)
-		this.DrawLine(0, this.y0 + i * this.cell_size_y, this.width, this.y0 + i * this.cell_size_y)
-
-	for (let i = 1; i <= left; i++)
-		this.DrawLine(this.x0 - i * this.cell_size_x, 0, this.x0 - i * this.cell_size_x, this.height)
-
-	for (let i = 1; i <= right; i++)
+	for (let i = -left; i <= right; i++)
 		this.DrawLine(this.x0 + i * this.cell_size_x, 0, this.x0 + i * this.cell_size_x, this.height)
 
 }
 
 Plotter.prototype.DrawVerticalValues = function(x0, y0) {
 	this.ctx.textBaseline = "middle"
-	this.ctx.textAlign = "left"
+	this.ctx.textAlign = x0 < this.width ? "left" : "right"
 	
 	let position = Math.min(Math.max(7, x0 + 7), this.width - 14)
 
 	let top = Math.floor(this.y0 / this.cell_size_y)
 	let bottom = Math.floor((this.height - this.y0) / this.cell_size_y)
+	let y = y0 < this.height ? top : bottom
 
-	for (let i = 1; i <= top; i++) {
+	for (let i = -bottom; i <= top; i++) {
 		this.DrawLine(x0 - 4, this.y0 - i * this.cell_size_y, x0 + 4, this.y0 - i * this.cell_size_y)
 		this.ctx.fillText(i, position, this.y0 - i * this.cell_size_y)
-	}
-
-	for (let i = 1; i <= bottom; i++) {
-		this.DrawLine(x0 - 4, this.y0 + i * this.cell_size_y, x0 + 4, this.y0 + i * this.cell_size_y)
-		this.ctx.fillText(-i, position, this.y0 + i * this.cell_size_y)
 	}
 }
 
 Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
-	this.ctx.textBaseline = "top"
+	this.ctx.textBaseline = y0 < this.height ? "top" : "bottom"
 	this.ctx.textAlign = "center"
 	
 	let position = Math.min(Math.max(7, y0 + 7), this.height - 14)
@@ -87,14 +80,9 @@ Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
 	let right = Math.floor((this.width - this.x0) / this.cell_size_x) 
 	let left = Math.floor(this.x0 / this.cell_size_x)
 
-	for (let i = 1; i <= right; i++){
+	for (let i = -left; i <= right; i++){
 		this.DrawLine(this.x0 + i * this.cell_size_x, y0 - 4, this.x0 + i * this.cell_size_x, y0 + 4)
 		this.ctx.fillText(i, this.x0 + i * this.cell_size_x, position)
-	}
-
-	for (let i = 1; i <= left; i++){
-		this.DrawLine(this.x0 - i * this.cell_size_x, y0 - 4, this.x0 - i * this.cell_size_x, y0 + 4)
-		this.ctx.fillText(-i, this.x0 - i * this.cell_size_x, position)
 	}
 }
 
@@ -142,10 +130,9 @@ Plotter.prototype.PlotFunction = function(f, step, color) {
 }
 
 Plotter.prototype.Plot = function() {
-	let t0 = performance.now()
-
 	this.ctx.clearRect(0, 0, this.width, this.height)
 
+	let t0 = performance.now()
 	this.DrawGrid()
 	this.DrawAxis()
 
@@ -153,6 +140,5 @@ Plotter.prototype.Plot = function() {
 		this.PlotFunction(this.functions[i].f, 0.001, this.functions[i].color)
 
 	let t1 = performance.now()
-
 	console.log(t1 - t0)
 }
