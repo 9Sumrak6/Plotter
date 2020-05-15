@@ -135,7 +135,6 @@ Plotter.prototype.HtoY = function(h) {
 	return this.Map(h, 0, this.height, this.ymax, this.ymin)
 }
 
-
 Plotter.prototype.PlotFunction = function(f, color) {
 	let step = (this.xmax - this.xmin) / this.width
 
@@ -190,4 +189,25 @@ Plotter.prototype.MouseWheel = function(e) {
 
 	this.SetCenter(x - dx / scale, y - dy / scale)
 	this.Plot() 
+}
+
+Plotter.prototype.MouseMove = function(e) {
+	let x = this.WtoX(e.offsetX)
+	let y = this.HtoY(e.offsetY)
+
+	this.Plot()
+	this.ctx.beginPath()
+	this.ctx.arc(e.offsetX, e.offsetY, 2, 0, Math.PI * 2)
+	this.ctx.fillStyle = this.axis_color
+	this.ctx.fill()
+	this.ctx.fillText(this.Round(x) + ", " + this.Round(y), e.offsetX, e.offsetY)
+
+	for (let i = 0; i < this.functions.length; i++) {
+		let fy = this.functions[i].f(x)
+		this.ctx.beginPath()
+		this.ctx.arc(e.offsetX, this.YtoH(fy), 3, 0, Math.PI * 2)
+		this.ctx.fillStyle = this.functions[i].color
+		this.ctx.fill()
+		this.ctx.fillText(this.Round(x) + ", " + this.Round(fy), e.offsetX, this.YtoH(fy))
+	}
 }
