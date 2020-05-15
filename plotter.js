@@ -64,13 +64,12 @@ Plotter.prototype.DrawVerticalValues = function(x0, y0) {
 
 	let top = Math.floor(this.y0 / this.cell_size_y)
 	let bottom = Math.floor((this.height - this.y0) / this.cell_size_y)
-	let y = y0 < this.height ? top : bottom
 
 	for (let i = -bottom; i <= top; i++) {
-		let y = y0 - i * this.cell_size_y
+		let y = this.y0 - i * this.cell_size_y
 		let value = this.Round(this.HtoY(y))
 
-		this.DrawLine(x0 - 4, this.y0 - i * this.cell_size_y, x0 + 4, this.y0 - i * this.cell_size_y)
+		this.DrawLine(x0 - 4, y, x0 + 4, y)
 		this.ctx.fillText(value, position, y)
 	}
 }
@@ -84,11 +83,11 @@ Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
 	let right = Math.floor((this.width - this.x0) / this.cell_size_x) 
 	let left = Math.floor(this.x0 / this.cell_size_x)
 
-	for (let i = -left; i <= right; i++){
-		let x = x0 - i * this.cell_size_x
+	for (let i = -left; i <= right; i++) {
+		let x = this.x0 + i * this.cell_size_x
 		let value = this.Round(this.WtoX(x))
 
-		this.DrawLine(this.x0 + i * this.cell_size_x, y0 - 4, this.x0 + i * this.cell_size_x, y0 + 4)
+		this.DrawLine(x, y0 - 4, x, y0 + 4)
 		this.ctx.fillText(value, x, position)
 	}
 }
@@ -169,6 +168,13 @@ Plotter.prototype.Plot = function() {
 Plotter.prototype.MouseWheel = function(e) {
 	let x0 = (this.width / 2 - this.x0) / this.cell_size_x / this.scale
 	let y0 = (this.y0 - this.height / 2 ) / this.cell_size_y / this.scale
+
+	let x = this.WtoX(e.offsetX)
+	let y = this.HtoY(e.offsetY)
+
+	let dx = x - x0
+	let dy = y - y0
+
 	let scale
 
 	if (e.deltaY < 0) {
@@ -182,6 +188,6 @@ Plotter.prototype.MouseWheel = function(e) {
 
 	this.scale *= scale
 
-	this.SetCenter(x0, y0)
+	this.SetCenter(x - dx / scale, y - dy / scale)
 	this.Plot() 
 }
