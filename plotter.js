@@ -11,6 +11,8 @@ function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_colo
 	this.cells_y = this.height / (2 * this.cell_size_y)
 
 	this.scale = scale
+	this.scales = [2, 2, 2.5]
+	this.scaleIndex = 0
 
 	this.SetCenter(x0, y0)
 
@@ -52,7 +54,6 @@ Plotter.prototype.DrawGrid = function() {
 
 	for (let i = -left; i <= right; i++)
 		this.DrawLine(this.x0 + i * this.cell_size_x, 0, this.x0 + i * this.cell_size_x, this.height)
-
 }
 
 Plotter.prototype.DrawVerticalValues = function(x0, y0) {
@@ -168,8 +169,18 @@ Plotter.prototype.Plot = function() {
 Plotter.prototype.MouseWheel = function(e) {
 	let x0 = (this.width / 2 - this.x0) / this.cell_size_x / this.scale
 	let y0 = (this.y0 - this.height / 2 ) / this.cell_size_y / this.scale
+	let scale
 
-	this.scale *= e.deltaY < 0 ? 2 : 0.5
+	if (e.deltaY < 0) {
+		scale = this.scales[this.scaleIndex]
+		this.scaleIndex = (this.scaleIndex + 1) % this.scales.length
+	}
+	else {
+		this.scaleIndex = (this.scaleIndex - 1 + this.scales.length) % this.scales.length
+		scale = 1 / this.scales[this.scaleIndex]
+	}
+
+	this.scale *= scale
 
 	this.SetCenter(x0, y0)
 	this.Plot() 
