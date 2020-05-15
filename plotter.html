@@ -42,6 +42,9 @@
 		let plotter = new Plotter(canvas, CELL_SIZE_X, CELL_SIZE_Y, X0, Y0, GRID_COLOR, AXIS_COLOR, SCALE)
 
 		document.addEventListener('mousewheel', function(e) {plotter.MouseWheel(e)} )
+		document.addEventListener('mousemove', function(e) {plotter.MouseMove(e)} )
+		document.addEventListener('mousedown', function(e) {plotter.MouseDown(e)} )
+		document.addEventListener('mouseup', function(e) {plotter.MouseUp(e)} )
 
 		plotter.AddFunction(f1, "blue")
 		plotter.AddFunction(f2, "red")

@@ -20,6 +20,10 @@ function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_colo
 	this.axis_color = axis_color
 
 	this.functions = []
+
+	this.isPressed = false
+	this.prevX = 0
+	this.prevY = 0
 }
 
 Plotter.prototype.SetCenter = function(x0, y0) {
@@ -66,6 +70,9 @@ Plotter.prototype.DrawVerticalValues = function(x0, y0) {
 	let bottom = Math.floor((this.height - this.y0) / this.cell_size_y)
 
 	for (let i = -bottom; i <= top; i++) {
+		if (i == 0)
+			continue
+
 		let y = this.y0 - i * this.cell_size_y
 		let value = this.Round(this.HtoY(y))
 
@@ -84,6 +91,9 @@ Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
 	let left = Math.floor(this.x0 / this.cell_size_x)
 
 	for (let i = -left; i <= right; i++) {
+		if (i == 0)
+			continue
+
 		let x = this.x0 + i * this.cell_size_x
 		let value = this.Round(this.WtoX(x))
 
@@ -152,16 +162,25 @@ Plotter.prototype.PlotFunction = function(f, color) {
 Plotter.prototype.Plot = function() {
 	this.ctx.clearRect(0, 0, this.width, this.height)
 
-	let t0 = performance.now()
-
 	this.DrawGrid()
 	this.DrawAxis()
 
 	for (let i = 0; i < this.functions.length; i++) 
 		this.PlotFunction(this.functions[i].f, this.functions[i].color)
+}
 
-	let t1 = performance.now()
-	console.log(t1 - t0)
+Plotter.prototype.ShowValues = function(mx, my) {
+	let x = this.WtoX(mx)
+	let y = this.HtoY(my)
+
+	for (let i = 0; i < this.functions.length; i++) {
+		let fy = this.functions[i].f(x)
+		this.ctx.beginPath()
+		this.ctx.arc(mx, this.YtoH(fy), 3, 0, Math.PI * 2)
+		this.ctx.fillStyle = this.functions[i].color
+		this.ctx.fill()
+		this.ctx.fillText(this.Round(x) + ", " + this.Round(fy), mx, this.YtoH(fy))
+	}
 }
 
 Plotter.prototype.MouseWheel = function(e) {
@@ -189,25 +208,37 @@ Plotter.prototype.MouseWheel = function(e) {
 
 	this.SetCenter(x - dx / scale, y - dy / scale)
 	this.Plot() 
+	this.ShowValues(e.offsetX, e.offsetY)
 }
 
 Plotter.prototype.MouseMove = function(e) {
-	let x = this.WtoX(e.offsetX)
-	let y = this.HtoY(e.offsetY)
-
-	this.Plot()
-	this.ctx.beginPath()
-	this.ctx.arc(e.offsetX, e.offsetY, 2, 0, Math.PI * 2)
-	this.ctx.fillStyle = this.axis_color
-	this.ctx.fill()
-	this.ctx.fillText(this.Round(x) + ", " + this.Round(y), e.offsetX, e.offsetY)
-
-	for (let i = 0; i < this.functions.length; i++) {
-		let fy = this.functions[i].f(x)
-		this.ctx.beginPath()
-		this.ctx.arc(e.offsetX, this.YtoH(fy), 3, 0, Math.PI * 2)
-		this.ctx.fillStyle = this.functions[i].color
-		this.ctx.fill()
-		this.ctx.fillText(this.Round(x) + ", " + this.Round(fy), e.offsetX, this.YtoH(fy))
+	if (!this.isPressed){
+		this.Plot()
+		this.ShowValues(e.offsetX, e.offsetY)
+		return
 	}
+
+	let dx = e.offsetX - this.prevX
+	let dy = e.offsetY - this.prevY
+
+	this.prevX = e.offsetX
+	this.prevY = e.offsetY
+
+	let x0 = (this.width / 2 - this.x0 - dx) / this.cell_size_x / this.scale
+	let y0 = (this.y0 + dy - this.height / 2 ) / this.cell_size_y / this.scale
+
+	this.SetCenter(x0, y0)
+	this.Plot()
+}
+
+Plotter.prototype.MouseDown = function(e) {
+	if (e.target.tagName == "CANVAS") {
+		this.isPressed = true
+		this.prevX = e.offsetX
+		this.prevY = e.offsetY
+	}
+}
+
+Plotter.prototype.MouseUp = function(e) {
+	this.isPressed = false
 }
