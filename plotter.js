@@ -10,25 +10,25 @@ function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_colo
 	this.cells_x = this.width / (2 * this.cell_size_x) 
 	this.cells_y = this.height / (2 * this.cell_size_y)
 
+	this.scale = scale
+
 	this.SetCenter(x0, y0)
 
 	this.grid_color = grid_color
 	this.axis_color = axis_color
 
-	this.scale = scale
-
 	this.functions = []
 }
 
 Plotter.prototype.SetCenter = function(x0, y0) {
-	this.x0 = this.width / 2 - this.cell_size_x * x0
-	this.y0 = this.height / 2 + this.cell_size_y * y0
+	this.x0 = this.width / 2 - this.cell_size_x * x0 * this.scale
+	this.y0 = this.height / 2 + this.cell_size_y * y0 * this.scale
 
-	this.xmin = x0 - this.cells_x
-	this.xmax = x0 + this.cells_x
+	this.xmin = x0 - this.cells_x / this.scale
+	this.xmax = x0 + this.cells_x / this.scale
 
-	this.ymin = y0 - this.cells_y
-	this.ymax = y0 + this.cells_y
+	this.ymin = y0 - this.cells_y / this.scale
+	this.ymax = y0 + this.cells_y / this.scale
 }
 
 Plotter.prototype.DrawLine = function(x1, y1, x2, y2) {
@@ -66,8 +66,11 @@ Plotter.prototype.DrawVerticalValues = function(x0, y0) {
 	let y = y0 < this.height ? top : bottom
 
 	for (let i = -bottom; i <= top; i++) {
+		let y = y0 - i * this.cell_size_y
+		let value = this.Round(this.HtoY(y))
+
 		this.DrawLine(x0 - 4, this.y0 - i * this.cell_size_y, x0 + 4, this.y0 - i * this.cell_size_y)
-		this.ctx.fillText(i, position, this.y0 - i * this.cell_size_y)
+		this.ctx.fillText(value, position, y)
 	}
 }
 
@@ -81,8 +84,11 @@ Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
 	let left = Math.floor(this.x0 / this.cell_size_x)
 
 	for (let i = -left; i <= right; i++){
+		let x = x0 - i * this.cell_size_x
+		let value = this.Round(this.WtoX(x))
+
 		this.DrawLine(this.x0 + i * this.cell_size_x, y0 - 4, this.x0 + i * this.cell_size_x, y0 + 4)
-		this.ctx.fillText(i, this.x0 + i * this.cell_size_x, position)
+		this.ctx.fillText(value, x, position)
 	}
 }
 
@@ -105,6 +111,10 @@ Plotter.prototype.AddFunction = function(f, color) {
 	this.functions.push({f: f, color: color})
 }
 
+Plotter.prototype.Round = function(value) {
+	return Math.round(value * 1000000) / 1000000
+}
+
 Plotter.prototype.Map = function(x, xmin, xmax, ymin, ymax) {
 	return (x - xmin) / (xmax - xmin) * (ymax - ymin) + ymin
 }
@@ -117,7 +127,18 @@ Plotter.prototype.YtoH = function(y) {
 	return this.Map(y, this.ymin, this.ymax, this.height, 0)
 }
 
-Plotter.prototype.PlotFunction = function(f, step, color) {
+Plotter.prototype.WtoX = function(w) {
+	return this.Map(w, 0, this.width,this.xmin, this.xmax)
+}
+
+Plotter.prototype.HtoY = function(h) {
+	return this.Map(h, 0, this.height, this.ymax, this.ymin)
+}
+
+
+Plotter.prototype.PlotFunction = function(f, color) {
+	let step = (this.xmax - this.xmin) / this.width
+
 	this.ctx.strokeStyle = color
 	this.ctx.lineWidth = 2
 	this.ctx.beginPath()
@@ -133,12 +154,23 @@ Plotter.prototype.Plot = function() {
 	this.ctx.clearRect(0, 0, this.width, this.height)
 
 	let t0 = performance.now()
+
 	this.DrawGrid()
 	this.DrawAxis()
 
-	for (let i = 0; i < this.functions.length; i++)
-		this.PlotFunction(this.functions[i].f, 0.001, this.functions[i].color)
+	for (let i = 0; i < this.functions.length; i++) 
+		this.PlotFunction(this.functions[i].f, this.functions[i].color)
 
 	let t1 = performance.now()
 	console.log(t1 - t0)
+}
+
+Plotter.prototype.MouseWheel = function(e) {
+	let x0 = (this.width / 2 - this.x0) / this.cell_size_x / this.scale
+	let y0 = (this.y0 - this.height / 2 ) / this.cell_size_y / this.scale
+
+	this.scale *= e.deltaY < 0 ? 2 : 0.5
+
+	this.SetCenter(x0, y0)
+	this.Plot() 
 }
