@@ -117,8 +117,12 @@ Plotter.prototype.DrawAxis = function() {
 	this.DrawHorizontalValues(x0, y0)
 }
 
-Plotter.prototype.AddFunction = function(f, color) {
-	this.functions.push({f: f, color: color})
+Plotter.prototype.AddSimpleFunction = function(f, color) {
+	this.functions.push({type: SIMPLE, f: f, color: color})
+}
+
+Plotter.prototype.AddParametricFunction = function(x, y, tmin, tmax, dt, color) {
+	this.functions.push({type: PARAMETRIC, x: x, y: y, tmin: tmin, tmax: tmax, dt: dt, color: color})
 }
 
 Plotter.prototype.Round = function(value) {
@@ -145,7 +149,7 @@ Plotter.prototype.HtoY = function(h) {
 	return this.Map(h, 0, this.height, this.ymax, this.ymin)
 }
 
-Plotter.prototype.PlotFunction = function(f, color) {
+Plotter.prototype.PlotSimpleFunction = function(f, color) {
 	let step = (this.xmax - this.xmin) / this.width
 
 	this.ctx.strokeStyle = color
@@ -159,14 +163,30 @@ Plotter.prototype.PlotFunction = function(f, color) {
 	this.ctx.stroke()
 }
 
+Plotter.prototype.PlotParametricFunction = function(x, y, tmin, tmax, dt, color) {
+	this.ctx.strokeStyle = color
+	this.ctx.lineWidth = 2
+	this.ctx.beginPath()
+	this.ctx.moveTo(this.XtoW(x(tmin)), this.YtoH(y(tmin)))
+
+	for (let t = tmin; t <= tmax; t += dt)
+		this.ctx.lineTo(this.XtoW(x(t)), this.YtoH(y(t)))
+
+	this.ctx.stroke()
+}
+
 Plotter.prototype.Plot = function() {
 	this.ctx.clearRect(0, 0, this.width, this.height)
 
 	this.DrawGrid()
 	this.DrawAxis()
 
-	for (let i = 0; i < this.functions.length; i++) 
-		this.PlotFunction(this.functions[i].f, this.functions[i].color)
+	for (let i = 0; i < this.functions.length; i++) {
+		if (this.functions[i].type == SIMPLE)
+			this.PlotSimpleFunction(this.functions[i].f, this.functions[i].color)
+		else
+			this.PlotParametricFunction(this.functions[i].x, this.functions[i].y, this.functions[i].tmin, this.functions[i].tmax, this.functions[i].dt, this.functions[i].color)
+	}
 }
 
 Plotter.prototype.ShowValues = function(mx, my) {
@@ -174,6 +194,8 @@ Plotter.prototype.ShowValues = function(mx, my) {
 	let y = this.HtoY(my)
 
 	for (let i = 0; i < this.functions.length; i++) {
+		if (this.functions[i].type == PARAMETRIC)
+			continue
 		let fy = this.functions[i].f(x)
 		this.ctx.beginPath()
 		this.ctx.arc(mx, this.YtoH(fy), 3, 0, Math.PI * 2)
