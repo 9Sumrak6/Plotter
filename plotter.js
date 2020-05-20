@@ -1,14 +1,17 @@
-function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_color, scale) {
+const SIMPLE = "simple"
+const PARAMETRIC = "parametric"
+
+function Plotter(canvas, cellSizeX, cellSizeY, x0, y0, gridColor, axisColor, scale) {
 	this.ctx = canvas.getContext("2d")
 
 	this.width = canvas.width
 	this.height = canvas.height
 
-	this.cell_size_x = cell_size_x
-	this.cell_size_y = cell_size_y
+	this.cellSizeX = cellSizeX
+	this.cellSizeY = cellSizeY
 
-	this.cells_x = this.width / (2 * this.cell_size_x) 
-	this.cells_y = this.height / (2 * this.cell_size_y)
+	this.cellsX = this.width / (2 * this.cellSizeX) 
+	this.cellsY = this.height / (2 * this.cellSizeY)
 
 	this.scale = scale
 	this.scales = [2, 2, 2.5]
@@ -16,8 +19,8 @@ function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_colo
 
 	this.SetCenter(x0, y0)
 
-	this.grid_color = grid_color
-	this.axis_color = axis_color
+	this.gridColor = gridColor
+	this.axisColor = axisColor
 
 	this.functions = []
 
@@ -27,14 +30,14 @@ function Plotter(canvas, cell_size_x, cell_size_y, x0, y0, grid_color, axis_colo
 }
 
 Plotter.prototype.SetCenter = function(x0, y0) {
-	this.x0 = this.width / 2 - this.cell_size_x * x0 * this.scale
-	this.y0 = this.height / 2 + this.cell_size_y * y0 * this.scale
+	this.x0 = this.width / 2 - this.cellSizeX * x0 * this.scale
+	this.y0 = this.height / 2 + this.cellSizeY * y0 * this.scale
 
-	this.xmin = x0 - this.cells_x / this.scale
-	this.xmax = x0 + this.cells_x / this.scale
+	this.xmin = x0 - this.cellsX / this.scale
+	this.xmax = x0 + this.cellsX / this.scale
 
-	this.ymin = y0 - this.cells_y / this.scale
-	this.ymax = y0 + this.cells_y / this.scale
+	this.ymin = y0 - this.cellsY / this.scale
+	this.ymax = y0 + this.cellsY / this.scale
 }
 
 Plotter.prototype.DrawLine = function(x1, y1, x2, y2) {
@@ -45,19 +48,19 @@ Plotter.prototype.DrawLine = function(x1, y1, x2, y2) {
 }
 
 Plotter.prototype.DrawGrid = function() {
-	this.ctx.strokeStyle = this.grid_color
+	this.ctx.strokeStyle = this.gridColor
 	this.ctx.lineWidth = 1
 
-	let top = Math.floor(this.y0 / this.cell_size_y)
-	let bottom = Math.floor((this.height - this.y0) / this.cell_size_y)
-	let right = Math.floor((this.width - this.x0) / this.cell_size_x) 
-	let left = Math.floor(this.x0 / this.cell_size_x)
+	let top = Math.floor(this.y0 / this.cellSizeY)
+	let bottom = Math.floor((this.height - this.y0) / this.cellSizeY)
+	let right = Math.floor((this.width - this.x0) / this.cellSizeX) 
+	let left = Math.floor(this.x0 / this.cellSizeX)
 
 	for (let i = -bottom; i <= top; i++)
-		this.DrawLine(0, this.y0 - i * this.cell_size_y, this.width, this.y0 - i * this.cell_size_y)
+		this.DrawLine(0, this.y0 - i * this.cellSizeY, this.width, this.y0 - i * this.cellSizeY)
 
 	for (let i = -left; i <= right; i++)
-		this.DrawLine(this.x0 + i * this.cell_size_x, 0, this.x0 + i * this.cell_size_x, this.height)
+		this.DrawLine(this.x0 + i * this.cellSizeX, 0, this.x0 + i * this.cellSizeX, this.height)
 }
 
 Plotter.prototype.DrawVerticalValues = function(x0, y0) {
@@ -66,14 +69,14 @@ Plotter.prototype.DrawVerticalValues = function(x0, y0) {
 	
 	let position = Math.min(Math.max(7, x0 + 7), this.width - 14)
 
-	let top = Math.floor(this.y0 / this.cell_size_y)
-	let bottom = Math.floor((this.height - this.y0) / this.cell_size_y)
+	let top = Math.floor(this.y0 / this.cellSizeY)
+	let bottom = Math.floor((this.height - this.y0) / this.cellSizeY)
 
 	for (let i = -bottom; i <= top; i++) {
 		if (i == 0)
 			continue
 
-		let y = this.y0 - i * this.cell_size_y
+		let y = this.y0 - i * this.cellSizeY
 		let value = this.Round(this.HtoY(y))
 
 		this.DrawLine(x0 - 4, y, x0 + 4, y)
@@ -87,14 +90,14 @@ Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
 	
 	let position = Math.min(Math.max(7, y0 + 7), this.height - 14)
 
-	let right = Math.floor((this.width - this.x0) / this.cell_size_x) 
-	let left = Math.floor(this.x0 / this.cell_size_x)
+	let right = Math.floor((this.width - this.x0) / this.cellSizeX) 
+	let left = Math.floor(this.x0 / this.cellSizeX)
 
 	for (let i = -left; i <= right; i++) {
 		if (i == 0)
 			continue
 
-		let x = this.x0 + i * this.cell_size_x
+		let x = this.x0 + i * this.cellSizeX
 		let value = this.Round(this.WtoX(x))
 
 		this.DrawLine(x, y0 - 4, x, y0 + 4)
@@ -103,8 +106,8 @@ Plotter.prototype.DrawHorizontalValues = function(x0, y0) {
 }
 
 Plotter.prototype.DrawAxis = function() {
-	this.ctx.strokeStyle = this.axis_color
-	this.ctx.fillStyle = this.axis_color
+	this.ctx.strokeStyle = this.axisColor
+	this.ctx.fillStyle = this.axisColor
 	this.ctx.font = "14px Calibri"
 
 	let x0 = Math.min(Math.max(this.x0, 0), this.width)
@@ -206,8 +209,8 @@ Plotter.prototype.ShowValues = function(mx, my) {
 }
 
 Plotter.prototype.MouseWheel = function(e) {
-	let x0 = (this.width / 2 - this.x0) / this.cell_size_x / this.scale
-	let y0 = (this.y0 - this.height / 2 ) / this.cell_size_y / this.scale
+	let x0 = (this.width / 2 - this.x0) / this.cellSizeX / this.scale
+	let y0 = (this.y0 - this.height / 2 ) / this.cellSizeY / this.scale
 
 	let x = this.WtoX(e.offsetX)
 	let y = this.HtoY(e.offsetY)
@@ -246,8 +249,8 @@ Plotter.prototype.MouseMove = function(e) {
 	this.prevX = e.offsetX
 	this.prevY = e.offsetY
 
-	let x0 = (this.width / 2 - this.x0 - dx) / this.cell_size_x / this.scale
-	let y0 = (this.y0 + dy - this.height / 2 ) / this.cell_size_y / this.scale
+	let x0 = (this.width / 2 - this.x0 - dx) / this.cellSizeX / this.scale
+	let y0 = (this.y0 + dy - this.height / 2 ) / this.cellSizeY / this.scale
 
 	this.SetCenter(x0, y0)
 	this.Plot()
